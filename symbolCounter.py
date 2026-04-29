@@ -1,5 +1,6 @@
 from collections import Counter
 
+# buat testing hasil corpus doang, baut make sure semua simbol sama nomor udh ilang
 filename = "cleanCorpus.txt"
 
 with open(filename) as f:
