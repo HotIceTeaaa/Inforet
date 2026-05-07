@@ -1,12 +1,12 @@
 """
-step 1: jalanin kode generateCorpusDict.py, bakal ngebuat file corpus.txt. 
+step 1: jalanin kode generateCorpusDict.py, bakal ngebuat file corpusDict.txt. 
 isinya dictionary, keynya index dokumen, valuenya isi dokumennya. 
 Harusnya mudahin pas nunjukin hasil querynya nanti
 
 (udh dijalanin, udh ada file txtnya)
 
 
-step 2: jalanin kode generate CorpusDict.py bakal ngebuat file cleanCorpus.txt
+step 2: jalanin kode generateCleanCorpus.py bakal ngebuat file cleanCorpus.txt
 isinya baris2 string. setiap baris itu isinya dokumen yg udh di preproces.
 
 (udh dijalanin, udh ada file txtnya)
