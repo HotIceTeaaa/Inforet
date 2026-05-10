@@ -14,7 +14,7 @@ isinya baris2 string. setiap baris itu isinya dokumen yg udh di preproces.
 
 from collections import defaultdict 
 from porterStemmer import PorterStemmer
-
+from BooleanModel import BooleanModel
 class Main:
     def __init__(self):
         namaCorpus = "cleanCorpus.txt"
@@ -26,7 +26,13 @@ class Main:
 
     def main(self):
         self.makeInvertedIndex()
-        print(self.invertedIndex)
+        all_doc_ids = list(range(len(self.corpus)))
+        
+        engine = BooleanModel(all_doc_ids, self.invertedIndex, self.ps)
+
+        while True:
+            query = input("\nMasukkan Query Boolean: ")
+            if query.lower() == 'exit': break
 
     def makeInvertedIndex(self):
         index = defaultdict(set)   # a set avoids duplicate IDs automatically
