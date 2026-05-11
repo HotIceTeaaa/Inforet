@@ -3,7 +3,7 @@ import xml.etree.ElementTree as ET
 def xml_to_dict(input_file, output_file):
     with open(input_file, 'r', encoding='utf-8') as f:
         content = f.read()
-    # Wrap with a synthetic root element
+    # harus di wrap sama <root> krn g keambil 
     wrapped = f"<root>{content}</root>"
     
     root = ET.fromstring(wrapped)
@@ -17,5 +17,5 @@ def xml_to_dict(input_file, output_file):
     with open(output_file, 'w', encoding='utf-8') as f:
         f.write(str(doc_dict))
 
-# Example usage
+
 xml_to_dict('cran.all.100.xml', 'corpusDict.txt')

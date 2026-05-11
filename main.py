@@ -24,7 +24,7 @@ class Main:
     
 
     def makeInvertedIndex(self):
-        index = defaultdict(set)   # a set avoids duplicate IDs automatically
+        index = defaultdict(set)
 
         for doc_id, paragraf in enumerate(self.corpus):
             tokens = self.tokenize(paragraf)
@@ -32,7 +32,7 @@ class Main:
             for stem in stems:
                 index[stem].add(doc_id)
 
-        # Convert sets to sorted lists (more readable, easier for merging)
+        # postingnya di sort menaik
         self.invertedIndex = {term: sorted(list(postings)) for term, postings in index.items()}
     
     def tokenize(self, paragraf):
