@@ -59,9 +59,8 @@ def get_postings(raw_token, invertedIndex, stemmer):
     return invertedIndex.get(stemmed, [])
 
 
-def run_cli(main_instance):
-    import BooleanEngine 
-    
+def run_cli(main_instance,engine):
+        
     # Load corpusDict 
     doc_details = {}
     try:
@@ -76,8 +75,8 @@ def run_cli(main_instance):
         user_query = input("\nMasukkan Query / 'exit': ")
         if user_query.lower() == 'exit':
             break
-            
-        results = BooleanEngine.evaluateQuery(user_query, main_instance.invertedIndex, main_instance.ps)
+        # Mengirim query ke Boolean Engine    
+        results = engine.evaluateQuery(user_query)
         
         if results:
             print(f"\nJumlah Dokumen: {len(results)}")
