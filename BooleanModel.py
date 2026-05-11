@@ -1,3 +1,5 @@
+import TolerantRetrieval
+
 class BooleanModel:
     def __init__(self, all_doc_ids, invertedIndex, stemmer):
         self.all_doc_ids = all_doc_ids
@@ -48,18 +50,18 @@ class BooleanModel:
         # Pecah string query menjadi list berdasarkan spasi
         tokens = query.split()
         if not tokens: return []
-
+    # fitur Wildcard dan Typo Correction
         #Konversi kata menjadi daftar ID (Posting List)
         elements = []
         for token in tokens:
             t_upper = token.upper()
             # Jika token adalah operator, masukkan sebagai string
             # tetapi jika token adalah kata kunci, lakukan stemming lalu ambil list ID-nya
-            if t_upper in ["AND", "OR", "NOT"]:
+            if t_upper in ["AND", "OR", "NOT"]: 
                 elements.append(t_upper)
             else:
-                stemmed = self.ps.stem([token.lower()])[0]
-                elements.append(self.invertedIndex.get(stemmed, []))
+                p_list = TolerantRetrieval.get_postings(token, self.invertedIndex, self.ps)
+                elements.append(p_list)
 
         #Proses NOT
         i = 0

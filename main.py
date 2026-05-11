@@ -1,20 +1,7 @@
-"""
-step 1: jalanin kode generateCorpusDict.py, bakal ngebuat file corpusDict.txt. 
-isinya dictionary, keynya index dokumen, valuenya isi dokumennya. 
-Harusnya mudahin pas nunjukin hasil querynya nanti
-
-(udh dijalanin, udh ada file txtnya)
-
-
-step 2: jalanin kode generateCleanCorpus.py bakal ngebuat file cleanCorpus.txt
-isinya baris2 string. setiap baris itu isinya dokumen yg udh di preproces.
-
-(udh dijalanin, udh ada file txtnya)
-"""
-
 from collections import defaultdict 
 from porterStemmer import PorterStemmer
 from BooleanModel import BooleanModel
+import TolerantRetrieval
 class Main:
     def __init__(self):
         namaCorpus = "cleanCorpus.txt"
@@ -23,16 +10,18 @@ class Main:
 
         self.invertedIndex = {}
         self.ps = PorterStemmer()
-
+        
+    # Inisialisasi Engine dan Menjalankan UI
     def main(self):
         self.makeInvertedIndex()
         all_doc_ids = list(range(len(self.corpus)))
         
+        
         engine = BooleanModel(all_doc_ids, self.invertedIndex, self.ps)
-
-        while True:
-            query = input("\nMasukkan Query Boolean: ")
-            if query.lower() == 'exit': break
+        
+        
+        TolerantRetrieval.run_cli(self, engine)
+    
 
     def makeInvertedIndex(self):
         index = defaultdict(set)
@@ -52,3 +41,4 @@ class Main:
 if __name__ == "__main__":
     mainClass = Main()
     mainClass.main()
+    
