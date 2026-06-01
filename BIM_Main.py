@@ -2,6 +2,8 @@ from Utils import Utils
 from BIM import BIM
 from porterStemmer import PorterStemmer
 from collections import defaultdict
+from BM25 import BM25
+from TwoPoisson import TwoPoisson
 
 class BIM_Main:
     def __init__(self):
@@ -9,6 +11,8 @@ class BIM_Main:
         self.ps = PorterStemmer()
         self.utils = Utils()
         self.invertedIndex = self.utils.makeInvertedIndex()
+        self.bm25 = BM25(k1=1.5, b=0.75)
+        self.two_poisson = TwoPoisson(max_iter=10)
 
     def main(self):
         while(True):
@@ -30,8 +34,12 @@ class BIM_Main:
         res = []
 
         for query_stem in query_stems:
-            res.append(list(self.invertedIndex.get(query_stem)))    # dibuat list() krn invertedIndex keynya set
-
+    
+            posting = self.invertedIndex.get(query_stem)
+            if posting is None:
+                res.append([]) 
+            else:
+                res.append(list(posting))
         return res
     
     def build_relDQ(self, query_posting_lists):
@@ -47,6 +55,40 @@ class BIM_Main:
                 RSVt = self.BIM.calculate_RSVt(ut, pt)
 
                 rel[d] += RSVt
+
+        return rel
+    
+    def build_relDQ_BM25(self, query_posting_lists, query_stems):
+        rel = defaultdict(float)
+        N = self.utils.get_N()
+        avgdl = self.utils.get_avg_document_length()
+
+        for stem, posting_list in zip(query_stems, query_posting_lists):
+            if not posting_list: continue
+            Nt = self.utils.get_Nt(posting_list)
+
+            for d in posting_list:
+                tf = self.utils.get_tf(stem, d)
+                dl = self.utils.get_document_length(d)
+                rel[d] += self.bm25.calculate_score(tf, N, Nt, dl, avgdl)
+
+        return rel
+
+    def build_relDQ_TwoPoisson(self, query_posting_lists, query_stems):
+        rel = defaultdict(float)
+        N = self.utils.get_N()
+
+        for stem, posting_list in zip(query_stems, query_posting_lists):
+            if not posting_list: continue
+            Nt = self.utils.get_Nt(posting_list)
+            
+            # Ambil frekuensi term untuk estimasi parameter
+            tf_list = [self.utils.get_tf(stem, d) for d in range(N)]
+            lambda_1, lambda_2, pi = self.two_poisson.estimate_parameters(tf_list)
+            
+            for d in posting_list:
+                tf = self.utils.get_tf(stem, d)
+                rel[d] += self.two_poisson.calculate_score(tf, lambda_1, N, Nt)
 
         return rel
     
