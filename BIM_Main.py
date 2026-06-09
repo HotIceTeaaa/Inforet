@@ -23,7 +23,6 @@ class BIM_Main:
             query_tokens = self.utils.tokenize(query)
             query_stems = self.ps.stem(query_tokens)
             query_posting_lists = self.get_query_posting_lists(query_stems)
-            #rel = self.build_relDQ_TwoPoisson(query_posting_lists, query_stems)
             rel = self.build_relDQ(query_posting_lists)
     
             ranked_docs = self.rank_rel(rel)
