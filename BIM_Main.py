@@ -137,7 +137,8 @@ class BIM_Main:
         avgdl = self.utils.get_avg_document_length()
 
         for stem, posting_list in zip(query_stems, query_posting_lists):
-            if not posting_list: continue
+            if not posting_list: 
+                continue
             Nt = self.utils.get_Nt(posting_list)
             for d in posting_list:
                 tf = self.utils.get_tf(stem, d)
@@ -151,7 +152,8 @@ class BIM_Main:
         N = self.utils.get_N()
 
         for stem, posting_list in zip(query_stems, query_posting_lists):
-            if not posting_list: continue
+            if not posting_list: 
+                continue
             Nt = self.utils.get_Nt(posting_list)
             for d in posting_list:
                 tf = self.utils.get_tf(stem, d)
