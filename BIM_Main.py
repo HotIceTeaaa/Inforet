@@ -6,57 +6,81 @@ from BM25 import BM25
 from TwoPoisson import TwoPoisson
 from BM10 import BM10  
 
-
 class IREvaluator:
-    @staticmethod
-    def calculate_metrics(ranked_docs, ground_truth, k_values=[3, 5, 10]):
-        if not ground_truth:
+    def __init__(self, qrels_file="cranqrel.txt"):
+        # Otomatis membaca file dataset ground truth
+        self.qrels = self.load_qrels(qrels_file)
+
+    def load_qrels(self, file_path):
+        relevance_data = {}
+        try:
+            with open(file_path, 'r') as f:
+                for line in f:
+                    parts = line.strip().split()
+                    if len(parts) >= 2:
+                        qid = parts[0].lower() # Normalisasi ID ke lowercase
+                        docid = int(parts[1])
+                        if qid not in relevance_data:
+                            relevance_data[qid] = []
+                        relevance_data[qid].append(docid)
+            return relevance_data
+        except FileNotFoundError:
+            print(f"File {file_path} tidak ditemukan di folder!")
+            return {}
+
+    def calculate_metrics(self, retrieved_docs, query_id, top_k=10):
+        query_id = str(query_id).strip().lower()
+        relevant_docs = self.qrels.get(query_id, [])
+        
+        # Jika query tidak ada di qrels, kembalikan nilai 0
+        if not relevant_docs:
             return {
-                "precision": 0.0, "recall": 0.0,
-                "p_at_k": {k: 0.0 for k in k_values},
-                "eleven_point": [0.0] * 11
+                'precision': 0.0, 'recall': 0.0, 
+                'p_at_k': {3: 0.0, 5: 0.0, 10: 0.0}, 
+                'eleven_point': [0.0] * 11
             }
-        
-        retrieved_set = ranked_docs
-        relevant_set = set(ground_truth)
-        
-        # 1. Hitung Precision & Recall Total
-        intersection = [doc for doc in retrieved_set if doc in relevant_set]
-        precision = len(intersection) / len(retrieved_set) if retrieved_set else 0.0
-        recall = len(intersection) / len(relevant_set) if relevant_set else 0.0
-        
-        # 2. Hitung Precision @ K
+
+        retrieved_k = retrieved_docs[:top_k] 
+        relevant_set = set(relevant_docs)
+
+        # 1. Hitung Precision & Recall Total (di Top K)
+        true_positives = [doc for doc in retrieved_k if doc in relevant_set]
+        tp_count = len(true_positives)
+
+        precision = tp_count / len(retrieved_k) if retrieved_k else 0.0
+        recall = tp_count / len(relevant_set) if relevant_set else 0.0
+
+        # 2. Hitung Precision at K (P@3, P@5, P@10)
         p_at_k = {}
-        for k in k_values:
-            top_k = ranked_docs[:k]
-            intersection_k = [doc for doc in top_k if doc in relevant_set]
-            p_at_k[k] = len(intersection_k) / k if k > 0 else 0.0
-            
+        for k in [3, 5, 10]:
+            ret_k = retrieved_docs[:k]
+            tp_k = len([d for d in ret_k if d in relevant_set])
+            p_at_k[k] = tp_k / k if k > 0 else 0.0
+
         # 3. Hitung 11-Point Interpolated Average Precision
-        precisions = []
-        recalls = []
-        hits = 0
-        for i, doc in enumerate(ranked_docs):
+        precisions_at_recall = []
+        tp_so_far = 0
+        
+        for i, doc in enumerate(retrieved_docs):
             if doc in relevant_set:
-                hits += 1
-                precisions.append(hits / (i + 1))
-                recalls.append(hits / len(relevant_set))
-        
+                tp_so_far += 1
+                current_precision = tp_so_far / (i + 1)
+                current_recall = tp_so_far / len(relevant_set)
+                precisions_at_recall.append((current_recall, current_precision))
+
         eleven_points = []
-        standard_recalls = [x / 10.0 for x in range(11)]
-        
-        for r in standard_recalls:
-            suffix_precisions = [p for p, rec in zip(precisions, recalls) if rec >= r]
-            if suffix_precisions:
-                eleven_points.append(max(suffix_precisions))
-            else:
-                eleven_points.append(0.0)
-                
+        for r_target in [x / 10.0 for x in range(11)]:
+            max_p = 0.0
+            for r, p in precisions_at_recall:
+                if r >= r_target and p > max_p:
+                    max_p = p
+            eleven_points.append(round(max_p, 4))
+
         return {
-            "precision": precision,
-            "recall": recall,
-            "p_at_k": p_at_k,
-            "eleven_point": eleven_points
+            'precision': round(precision, 4),
+            'recall': round(recall, 4),
+            'p_at_k': p_at_k,
+            'eleven_point': eleven_points
         }
 
 class BIM_Main:
@@ -68,21 +92,17 @@ class BIM_Main:
         self.bm25 = BM25(k1=1.5, b=0.75)
         self.two_poisson = TwoPoisson(k=1.2)
         self.bm10 = BM10(k1=1.5)  
-
-    def get_relevance_judgment(self, query):
-        matrix = {
-            "box": [12, 46],
-            "computer": [13, 15, 23, 31, 47, 48, 58, 63, 84, 85, 91, 92],
-            "compute": [13, 15, 23, 31, 47, 48, 58, 63, 84, 85, 91, 92],
-            "boundary": [15, 23, 48, 58, 72]
-        }
-        return matrix.get(query.lower().strip(), [])
+        # Inisialisasi evaluator sekali saja saat sistem menyala
+        self.evaluator = IREvaluator("cranqrel.txt")
 
     def main(self):
-        while(True):
+        while True:
             query = self.getQuery()
             if not query:
                 continue
+            if query.lower() == 'exit':
+                print("Exiting program...")
+                break
                 
             query_tokens = self.utils.tokenize(query)
             query_stems = self.ps.stem(query_tokens)
@@ -100,13 +120,11 @@ class BIM_Main:
             ranked_tp = self.rank_rel(rel_tp)
             ranked_bm10 = self.rank_rel(rel_bm10)  
             
-            # Tampilkan perbandingan ranking dan evaluasi metrik Tugas 3
+            # Tampilkan perbandingan ranking dan evaluasi metrik
             self.print_comparison_output(query, ranked_bim, ranked_tp, ranked_bm25, ranked_bm10)
         
     def getQuery(self):
-        str_input = input("Enter Query: ")
-        str_input = str_input.strip()
-        return str_input
+        return input("Enter Query (ketik 'exit' untuk keluar): ").strip()
 
     def get_query_posting_lists(self, query_stems):
         res = []
@@ -178,7 +196,8 @@ class BIM_Main:
         return sorted(rel, key=rel.get, reverse=True)
     
     def print_comparison_output(self, query, ranked_bim, ranked_tp, ranked_bm25, ranked_bm10):
-        ground_truth = self.get_ground_truth_for_query = self.get_relevance_judgment(query)
+        # Ambil ground truth dinamis dari file qrels
+        ground_truth = self.evaluator.qrels.get(query.lower(), [])
         
         print("\n" + "="*100)
         print(f"HASIL EVALUASI PERBANDINGAN MODEL UNTUK QUERY: '{query}'")
@@ -193,11 +212,11 @@ class BIM_Main:
         print(f"4. BM10 Peringkat Dokumen         : {ranked_bm10[:10]}")
         print("-"*100)
         
-        # Hitung Metrik Menggunakan IREvaluator
-        metrics_bim = IREvaluator.calculate_metrics(ranked_bim, ground_truth)
-        metrics_tp = IREvaluator.calculate_metrics(ranked_tp, ground_truth)
-        metrics_bm25 = IREvaluator.calculate_metrics(ranked_bm25, ground_truth)
-        metrics_bm10 = IREvaluator.calculate_metrics(ranked_bm10, ground_truth)
+        # Hitung Metrik menggunakan instance evaluator
+        metrics_bim = self.evaluator.calculate_metrics(ranked_bim, query)
+        metrics_tp = self.evaluator.calculate_metrics(ranked_tp, query)
+        metrics_bm25 = self.evaluator.calculate_metrics(ranked_bm25, query)
+        metrics_bm10 = self.evaluator.calculate_metrics(ranked_bm10, query)
         
         # Tampilkan Tabel Evaluasi
         print(f"{'METRIK EVALUASI':<25} | {'BIM':<12} | {'Two-Poisson':<12} | {'BM25':<12} | {'BM10':<12}")
