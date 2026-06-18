@@ -234,6 +234,41 @@ class Main:
         print(f"BM25          : {[round(x,3) for x in metrics_bm25['eleven_point']]}")
         print("="*100 + "\n")
 
+        """
+        Setelah dicoba beberapa query dari cleanedQrel, kami mendapat bahwa model yang dibuat masih jelek
+        Ini dikarenakan recall dan presisi di kebanyakan query masih 0. 
+
+        
+        Berikut query yang nilai precision/recall nya tidak 0:
+        - "what similarity laws must be obeyed when constructing aeroelastic models of heated high speed aircraft"
+          BIM memiliki precision, recall, dan precision @ K teratas
+
+        - "why does the compressibility transformation fail to correlate the high speed data for helium and air"
+          semua model memiliki precision, recall, dan precision @ K yang sama,
+          tapi BM10 memiliki 11-point interpolated average tertinggi, diikuti dengan Two Poisson Model 
+
+        - "did anyone else discover that the turbulent skin friction is not over sensitive to the nature of the variation of the viscosity with temperature"
+          BM10 memiliki precision tertinggi dengan nilai 0.1 dan recall tertinggi dengan nilai 0.5
+          
+        - "what is the effect of cross sectional shape on the flow over simple delta wings with sharp leading edges"
+          BIM memiliki precision, recall, dan precision @ K teratas
+
+        - "what size of end plate can be safely used to simulate two-dimensional flow conditions over a bluff cylindrical body of finite aspect ratio"
+          BIM hanya satu-satunya model yang memiliki nilai precision, recall, dan precision @ K teratas, 
+          model lainnya precision, recall, dan precision @ K teratas nya 0
+
+        - "does transition in the hypersonic wake depend on body geometry and size"
+          Two Poisson Model satu-satunya model yang memiliki nilai precision, recall, dan precision @ K teratas, 
+          model lainnya precision, recall, dan precision @ K teratas nya 0
+
+        - "how is the heat transfer downstream of the mass transfer region effected by mass transfer at the nose of a blunted cone"
+          semua model memiliki precision, recall, dan precision @ K yang sama,
+          tapi Two Poisson Model dan BM25 memiliki 11-point interpolated average tertinggi
+
+        Jadi dapat disimpulkan setelah komparasi kasar, model BIM paling baik dari keempatnya dan model BM25 adalah yang terburuk karena hanya "menang" di satu query
+        Tapi sekali lagi seluruh model kami rasa masih burukkarenakan recall dan presisi di kebanyakan query masih 0 dan bagi yang tidak 0, nilanya memang rendah
+        """ 
+
 if __name__ == "__main__":
     mainClass = Main()
     mainClass.main()
