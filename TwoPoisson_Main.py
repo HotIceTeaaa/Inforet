@@ -1,53 +1,59 @@
 from Utils import Utils
-from BIM import BIM
 from porterStemmer import PorterStemmer
 from collections import defaultdict
+from TwoPoisson import TwoPoisson
 
-class BIM_Main:
+class Main:
     def __init__(self):
-        self.BIM = BIM()
         self.ps = PorterStemmer()
         self.utils = Utils()
         self.invertedIndex = self.utils.makeInvertedIndex()
+        self.two_poisson = TwoPoisson(k=1.2)
 
     def main(self):
-        while(True):
+        while True:
             query = self.getQuery()
+            if not query:
+                continue
+            if query.lower() == 'exit':
+                print("Exiting program...")
+                break
+                
             query_tokens = self.utils.tokenize(query)
             query_stems = self.ps.stem(query_tokens)
             query_posting_lists = self.get_query_posting_lists(query_stems)
+            
+            rel_tp = self.build_relDQ_TwoPoisson(query_posting_lists, query_stems)
 
-            rel = self.build_relDQ(query_posting_lists)
-            ranked_docs = self.rank_rel(rel)
-            self.print_output(ranked_docs, query)
+            ranked_tp = self.rank_rel(rel_tp)
+            
+            self.print_output(ranked_tp, query)
         
     def getQuery(self):
-        str = input("Enter Query: ")
-        str = str.strip()
-        return str
+        return input("Enter Query (ketik 'exit' untuk keluar): ").strip()
 
     def get_query_posting_lists(self, query_stems):
         res = []
-
         for query_stem in query_stems:
-            res.append(list(self.invertedIndex.get(query_stem)))    # dibuat list() krn invertedIndex keynya set
-
+            posting = self.invertedIndex.get(query_stem)
+            if posting is None:
+                res.append([]) 
+            else:
+                res.append(list(posting))
         return res
     
-    def build_relDQ(self, query_posting_lists):
-        rel = defaultdict(int)
+    def build_relDQ_TwoPoisson(self, query_posting_lists, query_stems):
+        rel = defaultdict(float)
         N = self.utils.get_N()
 
-        for query_posting_list in query_posting_lists:
-            Nt = self.utils.get_Nt(query_posting_list)
-
-            for d in query_posting_list:
-                ut = self.BIM.calculate_ut()
-                pt = self.BIM.calculate_pt(N, Nt)
-                RSVt = self.BIM.calculate_RSVt(ut, pt)
-
-                rel[d] += RSVt
-
+        for stem, posting_list in zip(query_stems, query_posting_lists):
+            if not posting_list: 
+                continue
+            Nt = self.utils.get_Nt(posting_list)
+            for d in posting_list:
+                tf = self.utils.get_tf(stem, d)
+                score = self.two_poisson.calculate_score(tf, N, Nt)
+                rel[d] += score
         return rel
     
     def rank_rel(self, rel):
@@ -65,8 +71,8 @@ class BIM_Main:
             print()
 
         print("=====================================================================================================================================")
-        
+    
 
 if __name__ == "__main__":
-    mainClass = BIM_Main()
+    mainClass = Main()
     mainClass.main()

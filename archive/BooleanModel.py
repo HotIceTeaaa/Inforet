@@ -1,4 +1,4 @@
-import TolerantRetrieval
+import archive.TolerantRetrieval as TolerantRetrieval
 
 class BooleanModel:
     def __init__(self, all_doc_ids, invertedIndex, stemmer):

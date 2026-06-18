@@ -1,0 +1,48 @@
+what similarity laws must be obeyed when constructing aeroelastic models of heated high speed aircraft
+29 31 12 51 13 14 15 57 30 37 52 56 66 95
+what are the structural and aeroelastic problems associated with flight of high speed aircraft
+12 15 51 14 52
+can a criterion be developed to show empirically the validity of flow solutions for chemically reacting gas mixtures based on the simplifying assumption of instantaneous local chemical equilibrium
+48 20 58
+what chemical kinetic system is applicable to hypersonic aerodynamic problems
+21 22
+is it possible to relate the available pressure distributions for an ogive forebody at zero angle of attack to the lower surface pressures of an equivalent ogive forebody at angle of attack
+86
+what methods -dash exact or approximate -dash are presently available for predicting body pressures at angle of attack.
+64 65
+is it possible to find an analytical, similar solution of the strong blast wave problem in the newtonian approximation
+68
+why does the compressibility transformation fail to correlate the high speed data for helium and air
+24 79
+did anyone else discover that the turbulent skin friction is not over sensitive to the nature of the variation of the viscosity with temperature
+24 85
+does a practical flow follow the theoretical concepts for the interaction between adjacent blade rows of a supersonic cascade
+21 94 22
+what is a single approximate formula for the displacement thickness of a laminar boundary layer in compressible flow on a flat plate
+94 23 63
+how is the design of ring or part ring wings by linear theory affected by thickness
+21 22
+what application has the linear theory design of curved wings
+33
+what is the effect of cross sectional shape on the flow over simple delta wings with sharp leading edges
+84 24
+papers on flow visualization on slender conical wings
+16
+what size of end plate can be safely used to simulate two-dimensional flow conditions over a bluff cylindrical body of finite aspect ratio
+14
+to find an approximate correction for thickness in slender thin-wing theory
+14 12 15
+how do interference-free longitudinal stability measurements (made using free-flight models) compare with similar measurements made in a low-blockage wind tunnel
+23
+does transition in the hypersonic wake depend on body geometry and size
+2 3 4
+how can one detect transition phenomena in boundary layers
+62
+how can one detect transition phenomena in hypersonic wakes
+62
+what is a criterion that the transonic flow around an airfoil with a round leading edge be validly analyzed by the linearized transonic flow theory
+21 94 62
+what is the available information pertaining to the effect of slight rarefaction on boundary layer flows (the ?slip? effect)
+50
+how is the heat transfer downstream of the mass transfer region effected by mass transfer at the nose of a blunted cone
+24

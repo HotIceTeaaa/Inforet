@@ -1,7 +1,7 @@
 from collections import defaultdict 
 from porterStemmer import PorterStemmer
-from BooleanModel import BooleanModel
-import TolerantRetrieval
+from archive.BooleanModel import BooleanModel
+import archive.TolerantRetrieval as TolerantRetrieval
 
 class Main:
     def __init__(self):
