@@ -26,10 +26,12 @@ dst...
 Folder archieve berisi file dan folder bekas yang sudah tidak digunakan.
 
 ## Penjelasan Singkat Keempat Formula Model
+Model berikut akan mendapatkan query dan me-rank dokumen yang di retrieve berdasarkan relevansinya terhadap query
 
 BIM: Menghitung skor probabilitas murni berdasarkan ketiadaan atau keberadaan kata biner tanpa memperdulikan frekuensi kemunculan.
-Two-Poisson: Menghitung skor dengan mempertimbangkan term frequency menggunakan parameter saturasi k konstan, sehingga skor term tidak naik tanpa batas.
-BM10: Menghitung skor saturasi frekuensi kata menggunakan parameter k1 tanpa melakukan normalisasi ukuran dokumen.
-BM25: Menghitung skor frekuensi kata yang dimodifikasi dengan parameter b untuk melakukan normalisasi, sehingga dokumen yang terlalu panjang akan menerima penalti.
 
-Seluruh skor dari kata kunci yang cocok diakumulasikan, dan sistem melakukan ranking dokumen secara menurun.
+Two-Poisson: Menghitung skor dengan mempertimbangkan term frequency menggunakan parameter saturasi k konstan, sehingga skor term tidak naik tanpa batas.
+
+BM10: Menghitung skor saturasi frekuensi kata menggunakan parameter k1 tanpa melakukan normalisasi ukuran dokumen.
+
+BM25: Menghitung skor frekuensi kata yang dimodifikasi dengan parameter b untuk melakukan normalisasi, sehingga dokumen yang terlalu panjang akan menerima penalti.
